@@ -7,6 +7,9 @@ import discord
 from discord.ext import commands
 from dotenv import load_dotenv
 
+from utils import replace
+
+# main
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 OWM_API = os.getenv('OWM_API_KEY')
@@ -39,21 +42,16 @@ async def rolldice(ctx, number_of_dice: int, number_of_sides: int):
 
 @bot.command(name='weather', help='Get weather info of a city')
 async def weather(ctx, city):
-    if '-' in city:
-        city = city.replace('-', '+')
-    elif '_' in city:
-        city = city.replace('_', '+')
+    city = replace(city, ['-', '_'], ' ')
 
+    url = 'https://api.openweathermap.org/data/2.5/weather'
     params = {
         'q': city,
         'appid': OWM_API,
         'units': 'metric',
     }
 
-    rjs = requests.get(
-        url='https://api.openweathermap.org/data/2.5/weather',
-        params=params
-    ).json()
+    rjs = requests.get(url=url, params=params).json()
 
     if int(rjs['cod']) == 200:
         current_time = datetime.utcfromtimestamp(rjs['dt']+rjs['timezone'])\
@@ -80,6 +78,8 @@ async def quote(ctx):
 
 @bot.command(help='Search Wikipedia article')
 async def wiki(ctx, search_string):
+    search_string = replace(search_string, [' ', '-'], '_')
+
     url = 'https://en.wikipedia.org/w/api.php'
     params = {
         'action': 'query',
@@ -103,6 +103,8 @@ async def wiki(ctx, search_string):
 async def randomwiki(ctx, category=None):
     def good_title(title):
         return ':' not in title
+
+    category = replace(category, [' ', '-'], '_')
 
     url = 'https://en.wikipedia.org/w/api.php'
     params = {
