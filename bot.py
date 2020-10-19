@@ -56,14 +56,29 @@ async def weather(ctx, city):
     if int(rjs['cod']) == 200:
         current_time = datetime.utcfromtimestamp(rjs['dt']+rjs['timezone'])\
             .strftime('%I:%M %p')
-        lines = [
-            f'Weather at {rjs["name"]} (taken {current_time} local time):',
-            f'\tWeather: {rjs["weather"][0]["description"].capitalize()}',
-            f'\tTemperature: {rjs["main"]["temp"]:.1f} deg. C',
-            f'\tHumidity: {rjs["main"]["humidity"]}\%',
-            f'\tWind speed: {rjs["wind"]["speed"]} m/s',
-        ]
-        await ctx.send('\n'.join(lines))
+        title = f'Weather at {rjs["name"]}'
+        desc = f'data at {current_time} local time'
+        field_params = {
+            'Weather': f'{rjs["weather"][0]["description"].capitalize()}',
+            'Temperature': f'{rjs["main"]["temp"]:.1f} deg. C '\
+                f'({rjs["main"]["temp_min"]:.1f} - {rjs["main"]["temp_max"]:.1f})',
+            'Feels like': f'{rjs["main"]["feels_like"]} deg. C',
+            'Humidity': f'{rjs["main"]["humidity"]}\%',
+            'Wind speed': f'{rjs["wind"]["speed"]} m/s',
+        }
+        weather_icon_url = \
+            'http://openweathermap.org/img/wn/' + rjs['weather'][0]['icon'] + '.png'
+        footer = 'Powered by OpenWeather'
+        favicon_url = \
+            'https://openweathermap.org/themes/openweathermap/assets/vendor/owm/img/icons/logo_32x32.png'
+
+        embed = discord.Embed(title=title, description=desc, color=0x7289da)
+        for key, value in field_params.items():
+            embed.add_field(name=key, value=value)
+        embed.set_thumbnail(url=weather_icon_url)
+        embed.set_footer(text=footer, icon_url=favicon_url)
+
+        await ctx.send(embed=embed)
 
     elif int(rjs['cod']) == 404:
         await ctx.send('City not found.')
