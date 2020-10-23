@@ -57,12 +57,12 @@ async def weather(ctx, city):
         current_time = datetime.utcfromtimestamp(rjs['dt']+rjs['timezone'])\
             .strftime('%I:%M %p')
         title = f'Weather at {rjs["name"]}'
-        desc = f'data at {current_time} local time'
+        desc = f'Data at {current_time} local time'
         field_params = {
             'Weather': f'{rjs["weather"][0]["description"].capitalize()}',
-            'Temperature': f'{rjs["main"]["temp"]:.1f} deg. C '\
+            'Temperature (\u00b0C)': f'{rjs["main"]["temp"]:.1f} '\
                 f'({rjs["main"]["temp_min"]:.1f} - {rjs["main"]["temp_max"]:.1f})',
-            'Feels like': f'{rjs["main"]["feels_like"]} deg. C',
+            'Feels like (\u00b0C)': f'{rjs["main"]["feels_like"]:.1f}',
             'Humidity': f'{rjs["main"]["humidity"]}\%',
             'Wind speed': f'{rjs["wind"]["speed"]} m/s',
         }
